@@ -10,19 +10,22 @@ namespace BranchComplexToStatePart1
         public bool IsVerified { get; set; }
         public bool IsClosed { get; set; }
 
-        private Action OnUnfreeze { get; }
-        private Action ManageUnfreezing { get; set; }
+        // private Action OnUnfreeze { get; }
+        private IFreezable Freezable { get; set; }
+        // private Action ManageUnfreezing { get; set; }
         public Account(Action onUnfreeze)
         {
-            this.OnUnfreeze = onUnfreeze;
-            this.ManageUnfreezing = this.StayUnfrozen;
+            // this.OnUnfreeze = onUnfreeze;
+            // this.ManageUnfreezing = this.StayUnfrozen;
+            Freezable = new Active(onUnfreeze);
         }
 
         public void Deposit(decimal amount)
         {
             if (this.IsClosed)
                 return; // Or do something
-            this.ManageUnfreezing();
+            // this.ManageUnfreezing();
+            this.Freezable = this.Freezable.Deposit();
             this.Balance += amount;
         }
 
@@ -32,18 +35,19 @@ namespace BranchComplexToStatePart1
                 return; // Or do something...
             if (this.IsClosed)
                 return; // Or do something else...
-            this.ManageUnfreezing();
+            // this.ManageUnfreezing();
+            this.Freezable = this.Freezable.Withdraw();
             this.Balance -= amount;
         }
 
+        // I wanted to extract this methods of the responsability of this class.
+        //private void Unfreeze()
+        //{
+        //    this.OnUnfreeze();
+        //    this.ManageUnfreezing = this.StayUnfrozen;
+        //}
 
-        private void Unfreeze()
-        {
-            this.OnUnfreeze();
-            this.ManageUnfreezing = this.StayUnfrozen;
-        }
-
-        private void StayUnfrozen() { }
+        //private void StayUnfrozen() { }
 
         public void HolderVerified()
         {
@@ -60,7 +64,8 @@ namespace BranchComplexToStatePart1
                 return; // Account must not be closed
             if (!this.IsVerified)
                 return; // Account must be verified
-            this.ManageUnfreezing = this.Unfreeze;
+            //this.ManageUnfreezing = this.Unfreeze;
+            this.Freezable = this.Freezable.Freeze();
         }
     }
 }
