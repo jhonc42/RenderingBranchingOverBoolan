@@ -4,7 +4,7 @@ using System.Text;
 
 namespace BranchComplexToStatePart1
 {
-    class Active : IFreezable
+    class Active : IAccountState
     {
         private Action OnUnfreeze { get; }
 
@@ -12,9 +12,23 @@ namespace BranchComplexToStatePart1
         {
             OnUnfreeze = onUnfreeze;
         }
-        public IFreezable Deposit() => this;
-        public IFreezable Withdraw() => this;
 
-        public IFreezable Freeze() => new Frozen(this.OnUnfreeze);
+        public IAccountState Freeze() => new Frozen(this.OnUnfreeze);
+
+        public IAccountState Deposit(Action addToBalance)
+        {
+            addToBalance();
+            return this;
+        }
+
+        public IAccountState Withdraw(Action subtractFromBalance)
+        {
+            subtractFromBalance();
+            return this;
+        }
+
+        public IAccountState HolderVerified() => this;
+
+        public IAccountState Close() => this;
     }
 }

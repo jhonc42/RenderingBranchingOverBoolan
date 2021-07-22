@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 
 namespace BranchComplexToStatePart1
 {
-    class Frozen : IFreezable
+    class Frozen : IAccountState
     {
         private Action OnUnfreeze { get; }
 
@@ -12,18 +13,24 @@ namespace BranchComplexToStatePart1
         {
             OnUnfreeze = onUnfreeze;
         }
-        public IFreezable Deposit()
+        public IAccountState Deposit(Action addToBalance)
         {
             OnUnfreeze();
+            addToBalance();
             return new Active(OnUnfreeze);
         }
 
-        public IFreezable Withdraw()
+        public IAccountState Withdraw(Action substractFromBalance)
         {
             OnUnfreeze();
+            substractFromBalance();
             return new Active(OnUnfreeze);
         }
 
-        public IFreezable Freeze() => this;
+        public IAccountState Freeze() => this;
+
+        public IAccountState HolderVerified() => this;
+
+        public IAccountState Close() => this;
     }
 }
